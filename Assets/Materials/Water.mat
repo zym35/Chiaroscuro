@@ -41,11 +41,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _WaveNormal1:
-        m_Texture: {fileID: 2800000, guid: ad102c53f84ab274b8b056499d065731, type: 3}
+        m_Texture: {fileID: 2800000, guid: 058f0acb6bfbfc044806f23a1787bacc, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _WaveNormal2:
-        m_Texture: {fileID: 2800000, guid: 058f0acb6bfbfc044806f23a1787bacc, type: 3}
+        m_Texture: {fileID: 2800000, guid: ad102c53f84ab274b8b056499d065731, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _WaveNormalMain:
@@ -61,7 +61,7 @@ Material:
     - _Displacement: -0.14
     - _Distance: 2.51
     - _Float: 0
-    - _Glossiness: 1
+    - _Glossiness: 0.9
     - _Metallic: 0
     - _RefractionSpeed: 0
     - _RefractionSpeed1: 0.1
@@ -72,12 +72,12 @@ Material:
     - _Smoothness: 0.9
     - _Strengrh: 1
     - _Strength: 0.31
-    - _WaveScale1: 1.34
-    - _WaveScale2: 2.6
-    - _WaveSpeed1: 1
-    - _WaveSpeed2: 3
-    - _WaveStrength1: 1.46
-    - _WaveStrength2: 0.51
+    - _WaveScale1: 2
+    - _WaveScale2: 1
+    - _WaveSpeed1: 2
+    - _WaveSpeed2: 1.4
+    - _WaveStrength1: 0.6
+    - _WaveStrength2: 0.9
     m_Colors:
     - _Color: {r: 0, g: 1, b: 0.03236246, a: 1}
     - _DeepColor: {r: 0.081434615, g: 0.18953052, b: 0.28301883, a: 0.8235294}
