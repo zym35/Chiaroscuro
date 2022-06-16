@@ -1,8 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Cuttable : MonoBehaviour
 {
+    public GameObject debug;
+
     private Mesh _mesh;
     private MeshFilter _meshFilter;
 
@@ -12,7 +17,7 @@ public class Cuttable : MonoBehaviour
         _mesh = _meshFilter.mesh;
     }
 
-    public void Cut(Plane plane)
+    public void Cut(Plane plane, float force)
     {
         //initialize for new meshes
         var vertices = new List<Vector3>(_mesh.vertices);
@@ -26,6 +31,8 @@ public class Cuttable : MonoBehaviour
         var vertices2 = new List<Vector3>();
         var triangles2 = new List<int>();
         var normals2 = new List<Vector3>();
+
+        var intersects = new List<Vector3>();
 
         //for each triangle
         int triangleCount = triangles.Count;
@@ -109,6 +116,12 @@ public class Cuttable : MonoBehaviour
                 Vector3 v1Local = transform.InverseTransformPoint(v1World);
                 Vector3 v2Local = transform.InverseTransformPoint(v2World);
 
+                //add intersects to list for filling later
+                if (!ListHasVector3(intersects, v4))
+                    intersects.Add(v4);
+                if (!ListHasVector3(intersects, v5))
+                    intersects.Add(v5);
+
                 //add vertices and normals
                 Vector3 v4n = Vector3.Lerp(normals[i0Old], normals[i1Old], t4);
                 Vector3 v5n = Vector3.Lerp(normals[i0Old], normals[i2Old], t5);
@@ -141,16 +154,121 @@ public class Cuttable : MonoBehaviour
             }
         }
 
-        //spawn and destroy
-        SpawnObject(vertices1, triangles1, normals1);
-        SpawnObject(vertices2, triangles2, normals2);
-        //Destroy(gameObject);
+        //Fill the hole
+        Vector3 center = intersects.Aggregate(Vector3.zero, (a, b) => a + b) / intersects.Count;
+        intersects.Sort(new PointClockwiseComparer(plane.normal, center));
+        //StartCoroutine(StartDebug(intersects));
+        Fill();
+        void Fill()
+        {
+            Debug.Log(intersects.Count);
+
+            for (int i = 0; i < intersects.Count - 1; i++)
+            {
+                int x1 = AddVertexAndNormal(ref vertices1, intersects[i], ref normals1, -plane.normal);
+                int y1 = AddVertexAndNormal(ref vertices1, intersects[i + 1], ref normals1, -plane.normal);
+                int z1 = AddVertexAndNormal(ref vertices1, center, ref normals1, -plane.normal);
+                AddTriangle(ref triangles1, y1, x1, z1);
+
+                int x2 = AddVertexAndNormal(ref vertices2, intersects[i], ref normals2, plane.normal);
+                int y2 = AddVertexAndNormal(ref vertices2, intersects[i + 1], ref normals2, plane.normal);
+                int z2 = AddVertexAndNormal(ref vertices2, center, ref normals2, plane.normal);
+                AddTriangle(ref triangles2, x2, y2, z2);
+            }
+
+            int x1f = AddVertexAndNormal(ref vertices1, intersects[intersects.Count - 1], ref normals1, -plane.normal);
+            int y1f = AddVertexAndNormal(ref vertices1, intersects[0], ref normals1, -plane.normal);
+            int z1f = AddVertexAndNormal(ref vertices1, center, ref normals1, -plane.normal);
+            AddTriangle(ref triangles1, y1f, x1f, z1f);
+
+            int x2f = AddVertexAndNormal(ref vertices2, intersects[intersects.Count - 1], ref normals2, plane.normal);
+            int y2f = AddVertexAndNormal(ref vertices2, intersects[0], ref normals2, plane.normal);
+            int z2f = AddVertexAndNormal(ref vertices2, center, ref normals2, plane.normal);
+            AddTriangle(ref triangles2, x2f, y2f, z2f);
+
+            // while (intersects.Count > 3)
+            // {
+            //     int i = 1;
+            //     for (; i < intersects.Count - 1; i++)
+            //     {
+            //         Vector3 v = intersects[i];
+            //         Vector3 vLeft = intersects[i - 1];
+            //         Vector3 vRight = intersects[i + 1];
+            //
+            //         bool isEar = true;
+            //
+            //         //is v convex
+            //         if (Vector3.SignedAngle(vLeft - v, vRight - v, plane.normal) > 0)
+            //             continue;
+            //
+            //         //no other point inside triangle
+            //          for (var j = 0; j < intersects.Count && j < i - 1 && j > i + 1; j++)
+            //          {
+            //              if (!IsPointInsideTriangle(intersects[j], v, vLeft, vRight))
+            //                  continue;
+            //              isEar = false;
+            //              break;
+            //          }
+            //
+            //          if (!isEar)
+            //              continue;
+            //
+            //          int x1 = AddVertexAndNormal(ref vertices1, vRight, ref normals1, -plane.normal);
+            //          int y1 = AddVertexAndNormal(ref vertices1, v, ref normals1, -plane.normal);
+            //          int z1 = AddVertexAndNormal(ref vertices1, vLeft, ref normals1, -plane.normal);
+            //          AddTriangle(ref triangles1, x1, y1, z1);
+            //
+            //         int x2 = AddVertexAndNormal(ref vertices2, vLeft, ref normals2, plane.normal);
+            //         int y2 = AddVertexAndNormal(ref vertices2, v, ref normals2, plane.normal);
+            //         int z2 = AddVertexAndNormal(ref vertices2, vRight, ref normals2, plane.normal);
+            //         AddTriangle(ref triangles2, x2, y2, z2);
+            //
+            //         intersects.RemoveAt(i);
+            //         break;
+            //     }
+            //
+            //     if (i == intersects.Count - 1)
+            //         intersects.RemoveAt(0);
+            // }
+            //
+            // //final three vertices
+            // int x1f = AddVertexAndNormal(ref vertices1, intersects[2], ref normals1, -plane.normal);
+            // int y1f = AddVertexAndNormal(ref vertices1, intersects[0], ref normals1, -plane.normal);
+            // int z1f = AddVertexAndNormal(ref vertices1, intersects[1], ref normals1, -plane.normal);
+            // AddTriangle(ref triangles1, x1f, y1f, z1f);
+            //
+            // int x2f = AddVertexAndNormal(ref vertices2, intersects[1], ref normals2, plane.normal);
+            // int y2f = AddVertexAndNormal(ref vertices2, intersects[0], ref normals2, plane.normal);
+            // int z2f = AddVertexAndNormal(ref vertices2, intersects[2], ref normals2, plane.normal);
+            // AddTriangle(ref triangles2, z2f, y2f, x2f);
+        }
+
+        //spawn
+        Rigidbody rb1 = SpawnObject(vertices1, triangles1, normals1);
+        Rigidbody rb2 = SpawnObject(vertices2, triangles2, normals2);
+
+        if (rb1 != null && rb2 != null)
+        {
+            rb1.AddForce(plane.normal * force, ForceMode.Impulse);
+            rb2.AddForce(-plane.normal * force, ForceMode.Impulse);
+        }
+
+        Destroy(gameObject);
     }
 
-    private void SpawnObject(List<Vector3> vertices, List<int> triangles, List<Vector3> normals)
+    private IEnumerator StartDebug(List<Vector3> list)
+    {
+        foreach (Vector3 vector3 in list)
+        {
+            Instantiate(debug, transform.TransformPoint(vector3), Quaternion.identity);
+            yield return new WaitForSeconds(1f);
+        }
+    }
+
+    private Rigidbody SpawnObject(List<Vector3> vertices, List<int> triangles, List<Vector3> normals)
     {
         if (vertices.Count == 0)
-            return;
+            return null;
 
         Mesh mesh = new()
         {
@@ -159,16 +277,18 @@ public class Cuttable : MonoBehaviour
             triangles = triangles.ToArray(),
             normals = normals.ToArray()
         };
-        mesh.RecalculateNormals();
+        //mesh.RecalculateNormals();
 
         GameObject obj = new();
         obj.transform.SetPositionAndRotation(transform.position, transform.rotation);
         obj.transform.localScale = transform.localScale;
         obj.AddComponent<MeshFilter>().mesh = mesh;
         obj.AddComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().sharedMaterial;
-        obj.AddComponent<Rigidbody>();
+        Rigidbody rb = obj.AddComponent<Rigidbody>();
         obj.AddComponent<MeshCollider>().convex = true;
         obj.AddComponent<Cuttable>();
+
+        return rb;
     }
 
     private void AddTriangle(ref List<int> triangles, int i1, int i2, int i3)
@@ -181,11 +301,67 @@ public class Cuttable : MonoBehaviour
     /// <returns>the index of vertex in the new list</returns>
     private static int AddVertexAndNormal(ref List<Vector3> vertices, Vector3 v, ref List<Vector3> normals, Vector3 n)
     {
-        //int i = vertices.IndexOf(v);
-        //if (i != -1) return i;
+        int iVert = vertices.IndexOf(v);
+        if (iVert != -1 && normals[iVert] == n)
+            return iVert;
 
         vertices.Add(v);
         normals.Add(n);
         return vertices.Count - 1;
+    }
+
+    private class PointClockwiseComparer : Comparer<Vector3>
+    {
+        private Vector3 _normal, _center;
+
+        public PointClockwiseComparer(Vector3 normal, Vector3 center)
+        {
+            _normal = normal;
+            _center = center;
+        }
+
+        public override int Compare(Vector3 a, Vector3 b)
+        {
+            float angle = Vector3.SignedAngle(a - _center, b - _center, _normal);
+
+            if (angle == 0)
+            {
+                float dist = Vector3.Distance(a, _center) - Vector3.Distance(b, _center);
+                if (dist == 0)
+                    return 0;
+
+                return dist > 0 ? -1 : 1;
+            }
+
+            return angle > 0 ? -1 : 1;
+        }
+    }
+
+    private static bool IsPointInsideTriangle(Vector3 p, Vector3 a, Vector3 b, Vector3 c)
+    {
+        bool SameDirection(Vector3 x, Vector3 y)
+        {
+            return Vector3.Dot(x, y) >= 0;
+        }
+
+        if (!SameDirection(Vector3.Cross(b - a, p - a), Vector3.Cross(b - a, c - a)))
+            return false;
+        if (!SameDirection(Vector3.Cross(c - b, p - b), Vector3.Cross(c - b, a - b)))
+            return false;
+        if (!SameDirection(Vector3.Cross(a - c, p - c), Vector3.Cross(a - c, b - c)))
+            return false;
+
+        return true;
+    }
+
+    private bool ListHasVector3(List<Vector3> list, Vector3 v)
+    {
+        foreach (Vector3 vector3 in list)
+        {
+            if (Vector3.Distance(v, vector3) < 0.001f)
+                return true;
+        }
+
+        return false;
     }
 }

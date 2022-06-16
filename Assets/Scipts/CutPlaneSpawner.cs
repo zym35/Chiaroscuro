@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class CutPlaneSpawner : MonoBehaviour
 {
-    [SerializeField] private Camera _cam;
+    [SerializeField] private Camera cam;
+    [SerializeField] private float cutForce;
     private Vector3 _mouseStartPos, _mouseEndPos;
     private bool _isMouseDown;
 
@@ -23,12 +24,12 @@ public class CutPlaneSpawner : MonoBehaviour
 
     private Plane SpawnPlane()
     {
-        Vector3 startPos = _cam.ScreenToWorldPoint(_mouseStartPos);
-        Vector3 endPos = _cam.ScreenToWorldPoint(_mouseEndPos);
-        Vector3 camPos = _cam.transform.position;
+        Vector3 startPos = cam.ScreenToWorldPoint(_mouseStartPos);
+        Vector3 endPos = cam.ScreenToWorldPoint(_mouseEndPos);
+        Vector3 camPos = cam.transform.position;
 
         Plane plane = new(startPos, endPos, camPos);
-        DrawPlane(startPos, endPos, camPos, 3, Color.green, 10);
+        DrawPlane(startPos, endPos, camPos, 3, Color.green, 1);
 
         return plane;
     }
@@ -48,12 +49,8 @@ public class CutPlaneSpawner : MonoBehaviour
         Plane plane = SpawnPlane();
         foreach (Cuttable cuttable in cuttables)
         {
-            cuttable.Cut(plane);
-        }
-
-        foreach (Cuttable cuttable in cuttables)
-        {
-            Destroy(cuttable.gameObject);
+            cuttable.Cut(plane, cutForce);
+            //Destroy(cuttable.gameObject);
         }
     }
 
