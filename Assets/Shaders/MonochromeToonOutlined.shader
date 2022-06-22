@@ -9,6 +9,10 @@ Shader "Hidden/MonochromeToonOutlined"
         _WhiteColor ("White Color", Color) = (0.78, 0.73, 0.67, 1)
         _BlackColor ("Black Color", Color) = (0.12, 0.11, 0.2, 1)
         _ToonThreshold ("Toon Threshold", Range(0, 0.5)) = 0.1
+
+        _NormalStrength ("Normal Strength", Float) = 1
+        _DepthStrength ("Depth Strength", Float) = 1
+        _InvertThreshold ("Invert Threshold", Range(0, 2)) = 1
     }
     SubShader
     {
@@ -52,22 +56,43 @@ Shader "Hidden/MonochromeToonOutlined"
             float4 _WhiteColor;
             float4 _BlackColor;
             float _ToonThreshold;
+            float _NormalStrength;
+            float _DepthStrength;
+            float _InvertThreshold;
 
-            float4 GetPixelValue(in float2 uv) {
+            float3 GetPixelValue(in float2 uv) {
                 float depth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv));
-                float3 normal = DecodeViewNormalStereo (tex2D(_CameraDepthNormalsTexture, uv));
-
-                return fixed4(normal, depth);
+                float2 normal = DecodeViewNormalStereo (tex2D(_CameraDepthNormalsTexture, uv));
+                return fixed3(normal * _NormalStrength, depth * _DepthStrength);
             }
 
-            float GetSobelValue(in float2 uv)
-            {
-                half2 offsets[8] = {
-                    half2(-1, -1), half2(-1, 0), half2(-1, 1),
-                    half2(0, -1),               half2(0, 1),
-                    half2(1, -1), half2(1, 0), half2(1, 1)
-                };
+            float2 GetNormalValue(in float2 uv) {
+                float2 normal = DecodeViewNormalStereo (tex2D(_CameraDepthNormalsTexture, uv));
+                return normal * _NormalStrength;
+            }
 
+            float GetDepthValue(in float2 uv) {
+                float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv));
+                return depth * _DepthStrength;
+            }
+
+            float GetMeanValue(in float2 uv, in half2 offsets[8])
+            {
+                float3 center = GetPixelValue(uv);
+
+                float3 sample = float3(0,0,0);
+
+                UNITY_UNROLL
+                for (int i = 0; i < 8; i++) {
+                    sample += GetPixelValue(uv + offsets[i] * _MainTex_TexelSize.xy );
+                }
+                sample /= 8;
+
+                return length(center - sample);
+            }
+
+            float GetSobelValue(in float2 uv,  in half2 offsets[8])
+            {
                 half gx[8] = {
                     -1, 0, 1,
                     -2,    2,
@@ -80,62 +105,55 @@ Shader "Hidden/MonochromeToonOutlined"
                     1, 2, 1
                 };
 
-                float4 sampleX = float4(0,0,0,0);
-                float4 sampleY = float4(0,0,0,0);
+                float2 sampleXNormal = float2(0,0);
+                float2 sampleYNormal = float2(0,0);
+                float sampleXDepth = 0;
+                float sampleYDepth = 0;
 
                 UNITY_UNROLL
                 for (int i = 0; i < 8; i++) {
-                    float4 v = GetPixelValue(uv + offsets[i] * _MainTex_TexelSize.xy);
-                    sampleX += v * gx[i];
-                    sampleY += v * gy[i];
+                    float vD = GetDepthValue(uv + offsets[i] * _MainTex_TexelSize.xy);
+                    float2 vN = GetNormalValue(uv + offsets[i] * _MainTex_TexelSize.xy);
+                    sampleXNormal += vN * gx[i];
+                    sampleYNormal += vN * gy[i];
+                    sampleXDepth += vD * gx[i];
+                    sampleYDepth += vD * gy[i];
                 }
 
-                return sqrt(pow(sampleX, 2) + pow(sampleY, 2));
+                float sampleNormal = sqrt(pow(sampleXNormal, 2) + pow(sampleYNormal, 2));
+                float sampleDepth = sqrt(pow(sampleXDepth, 2) + pow(sampleYDepth, 2));
+
+                return max(sampleNormal, sampleDepth);
+            }
+
+            float Toon(in float4 col)
+            {
+                //float lum = 0.299 * col.r + 0.587 * col.g + 0.114 * col.b;
+                return step(_ToonThreshold, col);
             }
 
             float4 frag (v2f i) : SV_Target
             {
-                float4 orValue = GetPixelValue(i.uv);
-
-                half2 offsets0[4] = {
-                    half2(-1, 0), half2(0, -1), half2(1, 0), half2(0, 1)
-                };
-
-                half2 offsets1[8] = {
+                half2 offsets[8] = {
                     half2(-1, -1), half2(-1, 0), half2(-1, 1),
                     half2(0, -1),               half2(0, 1),
                     half2(1, -1), half2(1, 0), half2(1, 1)
                 };
 
-                half2 offsets2[24] = {
-                    half2(-2, -2), half2(-1, -2), half2(0, -2), half2(1, -2), half2(2, -2),
-                    half2(-2, -1), half2(-1, -1), half2(0, -1), half2(1, -1), half2(2, -1),
-                    half2(-2, 0), half2(-1, 0),               half2(1, 0), half2(2, 0),
-                    half2(-2, 1), half2(-1, 1), half2(0, 1), half2(1, 1), half2(2, 1),
-                    half2(-2, 2), half2(-1, 2), half2(0, 2), half2(1, 2), half2(2, 2),
-                };
+                float4 sample = tex2D(_MainTex, i.uv);
 
-                // float4 sampledValue = float4(0,0,0,0);
-                // UNITY_UNROLL
-                // for (int j = 0; j < 8; j++) {
-                //     sampledValue += GetPixelValue(i.uv + offsets1[j] * _MainTex_TexelSize.xy);
-                // }
-                // sampledValue /= 8;
-                //
-                // return length(orValue - sampledValue);
+                UNITY_UNROLL
+                for (int j = 0; j < 8; j++) {
+                    sample += tex2D(_MainTex, i.uv + offsets[j] * _MainTex_TexelSize.xy * _InvertThreshold);
+                }
+                sample /= 9;
+                float toon = Toon(sample);
 
-                float outline = step(_OutlineThreshold, length(orValue - sampledValue)); //outline:1
-                //float4 outlined = lerp(col, _BlackColor, outline);
+                float meanOutline = step(_OutlineThreshold, GetMeanValue(i.uv, offsets));
 
-                float4 col = tex2D(_MainTex, i.uv);
-                //float lum = 0.299 * col.r + 0.587 * col.g + 0.114 * col.b;
-                float toon = step(_ToonThreshold, col);
+                //return toon != meanOutline;
 
-                float output = toon != outline;
-
-                return output;
-
-                // return lerp(_BlackColor, _WhiteColor, toon);
+                return lerp(_BlackColor, _WhiteColor, toon != meanOutline);
             }
             ENDCG
         }
