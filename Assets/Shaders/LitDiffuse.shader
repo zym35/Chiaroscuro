@@ -1,4 +1,4 @@
-Shader "Unlit/MTO2"
+Shader "Chirascuro/LitDiffuse"
 {
     Properties
     {

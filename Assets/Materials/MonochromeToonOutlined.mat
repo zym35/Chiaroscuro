@@ -29,15 +29,15 @@ Material:
     - _DepthBias: 1
     - _DepthMultiplier: 1
     - _DepthStrength: 1
-    - _InvertThreshold: 0.87
+    - _InvertThreshold: 0
     - _NormalBias: 1
     - _NormalMultiplier: 1
-    - _NormalStrength: 1
+    - _NormalStrength: 1.51
     - _OutlineThickness: 0.86
-    - _OutlineThreshold: 0.059
+    - _OutlineThreshold: 0.187
     - _Thickness: 0.1
     - _Threshold: 0.15
-    - _ToonThreshold: 0.036
+    - _ToonThreshold: 0.108
     m_Colors:
     - _BlackColor: {r: 0.11999995, g: 0.10999996, b: 0.19999996, a: 1}
     - _Color: {r: 0.11764703, g: 0.10980389, b: 0.19607839, a: 1}
