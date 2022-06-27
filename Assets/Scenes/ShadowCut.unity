@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028429, g: 0.2257143, b: 0.3069227, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -321,6 +321,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: {fileID: 0}
+  physicMaterial: {fileID: 0}
 --- !u!135 &138139640
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -435,7 +436,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &157166697
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -544,6 +545,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: {fileID: 0}
+  physicMaterial: {fileID: 0}
 --- !u!43 &459009441
 Mesh:
   m_ObjectHideFlags: 0
@@ -821,6 +823,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: {fileID: 0}
+  physicMaterial: {fileID: 0}
 --- !u!54 &620739062
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -970,6 +973,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: {fileID: 0}
+  physicMaterial: {fileID: 0}
 --- !u!54 &1188891223
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2188,7 +2192,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!136 &1630161940
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2261,9 +2265,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1630161939}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.414, y: -0.044, z: -0.424}
-  m_LocalScale: {x: 0.61109, y: 0.61109, z: 0.61109}
-  m_ConstrainProportionsScale: 1
+  m_LocalPosition: {x: 0.414, y: 0.441, z: -0.424}
+  m_LocalScale: {x: 0.41664118, y: 1.0568104, z: 0.41664118}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
@@ -2281,6 +2285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: {fileID: 507802199235655464, guid: f9887cc4b76a75340907b9d25dabd6cf, type: 3}
+  physicMaterial: {fileID: 13400000, guid: 22653577c3a07814f8634b27fb7ad250, type: 2}
 --- !u!54 &1630161945
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2373,8 +2378,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1640266961}
-  m_LocalRotation: {x: -0.019009741, y: 0.36644918, z: -0.0073974435, w: -0.9302144}
-  m_LocalPosition: {x: 1.6297419, y: -0.039156195, z: -1.5735098}
+  m_LocalRotation: {x: 0.0000000018626451, y: 0.7071067, z: -0.0000000037252903, w: 0.7071068}
+  m_LocalPosition: {x: -3.3460639, y: 0.44665307, z: 0.013420098}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -2416,6 +2421,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: {fileID: 0}
+  physicMaterial: {fileID: 0}
 --- !u!54 &1720571024
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2777,11 +2783,11 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1845118218}
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalRotation: {x: 0.4153384, y: 0.16749392, z: -0.07810369, w: 0.89069617}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 50, y: 21.3, z: 0}

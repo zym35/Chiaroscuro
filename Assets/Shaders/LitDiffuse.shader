@@ -98,5 +98,4 @@ Shader "Chirascuro/LitDiffuse"
             ENDCG
         }
     }
-    //Fallback "Diffuse"
 }

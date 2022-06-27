@@ -34,12 +34,6 @@ public class CutPlaneSpawner : MonoBehaviour
         return plane;
     }
 
-    private void OnDrawGizmos()
-    {
-        Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 5);
-        Gizmos.color = Color.blue;
-    }
-
     private void BeginCut()
     {
         Cuttable[] cuttables = FindObjectsOfType<Cuttable>();

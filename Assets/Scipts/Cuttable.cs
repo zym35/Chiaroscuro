@@ -7,6 +7,7 @@ using UnityEngine;
 public class Cuttable : MonoBehaviour
 {
     public GameObject debug;
+    public PhysicMaterial physicMaterial;
 
     private Mesh _mesh;
     private MeshFilter _meshFilter;
@@ -155,13 +156,13 @@ public class Cuttable : MonoBehaviour
         }
 
         //Fill the hole
-        Vector3 center = intersects.Aggregate(Vector3.zero, (a, b) => a + b) / intersects.Count;
-        intersects.Sort(new PointClockwiseComparer(plane.normal, center));
+
         //StartCoroutine(StartDebug(intersects));
-        Fill();
+        //Fill();
         void Fill()
         {
-            Debug.Log(intersects.Count);
+            Vector3 center = intersects.Aggregate(Vector3.zero, (a, b) => a + b) / intersects.Count;
+            intersects.Sort(new PointClockwiseComparer(plane.normal, center));
 
             for (int i = 0; i < intersects.Count - 1; i++)
             {
@@ -249,8 +250,8 @@ public class Cuttable : MonoBehaviour
 
         if (rb1 != null && rb2 != null)
         {
-            rb1.AddForce(plane.normal * force, ForceMode.Impulse);
-            rb2.AddForce(-plane.normal * force, ForceMode.Impulse);
+            //rb1.AddForce(plane.normal * force, ForceMode.Impulse);
+            //rb2.AddForce(-plane.normal * force, ForceMode.Impulse);
         }
 
         Destroy(gameObject);
@@ -284,9 +285,14 @@ public class Cuttable : MonoBehaviour
         obj.transform.localScale = transform.localScale;
         obj.AddComponent<MeshFilter>().mesh = mesh;
         obj.AddComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().sharedMaterial;
-        Rigidbody rb = obj.AddComponent<Rigidbody>();
-        obj.AddComponent<MeshCollider>().convex = true;
         obj.AddComponent<Cuttable>();
+
+        MeshCollider collider = obj.AddComponent<MeshCollider>();
+        collider.convex = true;
+        collider.material = physicMaterial;
+
+        Rigidbody rb = obj.AddComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezePositionZ;
 
         return rb;
     }

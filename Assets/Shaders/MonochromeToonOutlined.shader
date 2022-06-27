@@ -97,6 +97,7 @@ Shader "Hidden/MonochromeToonOutlined"
 
                 float invertedOutline = abs(sign(toon - meanOutline));
                 return lerp(_BlackColor, _WhiteColor, invertedOutline);
+                //return lerp(_BlackColor, _WhiteColor, toon);
             }
             ENDCG
         }
