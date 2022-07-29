@@ -23,8 +23,8 @@ public class StickPlayerMovement : MonoBehaviour
     {
         Vector3 playerPos = transform.position;
         Vector3 footCenter = (leftFootIK.position + rightFootIK.position) / 2;
-        Debug.DrawLine(playerPos, footCenter, Color.green);
-        if (Vector3.Distance(playerPos, footCenter) > .5f)
+        Debug.DrawLine(playerPos, footCenter, Color.yellow);
+        if (Vector3.Distance(playerPos, footCenter) > Vector3.Distance(leftFootIK.position, footCenter))
         {
             StepPolar(leftFootIK.position, rightFootIK.position, playerPos,
                 out Vector3 leftPos, out Vector3 rightPos);
@@ -47,34 +47,35 @@ public class StickPlayerMovement : MonoBehaviour
         Move();
     }
 
+    private void LogDegree(float radius, string n)
+    {
+        Debug.Log(n + ": " + radius * Mathf.Rad2Deg);
+    }
+
     private void StepPolar(Vector3 leftFootPos, Vector3 rightFootPos, Vector3 playerPos, out Vector3 newLeftPos, out Vector3 newRightPos)
     {
         Vector3 upAxis = Vector3.up;
         float r0 = Vector3.Distance(leftFootPos, rightFootPos) / 2;
-        float r1 = 1;
+        float r1 = 2 * r0;
         Vector3 axisOrigin = (leftFootPos + rightFootPos) / 2;
         Vector3 axisFront = Vector3.Cross(upAxis, leftFootPos - axisOrigin);
-        float playerAngle = Vector3.SignedAngle(axisFront, playerPos - axisOrigin, upAxis);
+        float playerAngle = Vector3.SignedAngle(axisFront, playerPos - axisOrigin, upAxis) * Mathf.Deg2Rad;
         float triangleCornerAngle = Mathf.Acos(r0 / r1);
 
-        Debug.Log("Player Angle: " + playerAngle);
+        LogDegree(playerAngle, "playerAngle");
+        LogDegree(triangleCornerAngle, "triangleCornerAngle");
 
-        float newLeftIKAngle = triangleCornerAngle - (Mathf.PI / 2 - playerAngle);
-        Vector3 newLeftPosLocal;
-        if (newLeftIKAngle > 0)
-            newLeftPosLocal = new Vector3(r1 * Mathf.Cos(newLeftIKAngle), 0, r1 * Mathf.Sin(newLeftIKAngle));
-        else
-            newLeftPosLocal = new Vector3(r1 * Mathf.Sin(newLeftIKAngle), 0, r1 * Mathf.Cos(newLeftIKAngle));
+        float newLeftIKAngle = Mathf.PI / 2 - triangleCornerAngle - playerAngle;
+
+        LogDegree(newLeftIKAngle, "newLeftIKAngle");
+
+        Vector3 newLeftPosLocal = new(-r1 * Mathf.Sin(newLeftIKAngle), 0, r1 * Mathf.Cos(newLeftIKAngle));
+        Vector3 newRightPosLocal = new(r1 * Mathf.Sin(newLeftIKAngle), 0, r1 * Mathf.Cos(newLeftIKAngle));
+
+        Debug.DrawLine(newLeftPosLocal, newRightPosLocal, Color.yellow);
+
         //newLeftPos = Quaternion.AngleAxis(-playerAngle, upAxis) * newLeftPosLocal + axisOrigin;
         newLeftPos = newLeftPosLocal + axisOrigin;
-
-        float newRightIKAngle = Mathf.PI / 2 + playerAngle - triangleCornerAngle;
-        Vector3 newRightPosLocal;
-        if (newRightIKAngle < 0)
-            newRightPosLocal = new Vector3(r1 * Mathf.Cos(newRightIKAngle), 0, r1 * Mathf.Sin(newRightIKAngle));
-        else
-            newRightPosLocal = new Vector3(r1 * Mathf.Sin(newRightIKAngle), 0, r1 * Mathf.Cos(newRightIKAngle));
-        //newRightPos = Quaternion.AngleAxis(-playerAngle, upAxis) * newRightPosLocal + axisOrigin;
         newRightPos = newRightPosLocal + axisOrigin;
     }
 
