@@ -7,7 +7,6 @@ public class StickPlayerMovement : MonoBehaviour
 
     public float stepLengthMultiplier = 0.06f;
     public float stepThreshold = 0.5f;
-    public float bumpHeightMultiplier = 0.1f;
     public float bodyTiltMultiplier = 0.3f;
     public float speed, rotateSpeed;
     public Transform leftFootIK, rightFootIK;
@@ -47,10 +46,10 @@ public class StickPlayerMovement : MonoBehaviour
 
     private void RaycastGround()
     {
-        Vector3 leftDest = transform.TransformPoint(-0.5f, 1, _stepLength);
-        Vector3 rightDest = transform.TransformPoint(0.5f, 1, _stepLength);
+        Vector3 leftDest = transform.TransformPoint(-0.5f, PlayerHeight, _stepLength);
+        Vector3 rightDest = transform.TransformPoint(0.5f, PlayerHeight, _stepLength);
 
-        if (Physics.Raycast(new Ray(leftDest, Vector3.down), out RaycastHit hitLeft, 5))
+        if (Physics.Raycast(new Ray(leftDest, Vector3.down), out RaycastHit hitLeft, PlayerHeight + 2))
         {
             leftDest = hitLeft.point;
         }
@@ -59,7 +58,7 @@ public class StickPlayerMovement : MonoBehaviour
             leftDest = transform.TransformPoint(-0.5f, 0, _stepLength);
         }
 
-        if (Physics.Raycast(new Ray(rightDest, Vector3.down), out RaycastHit hitRight, 5))
+        if (Physics.Raycast(new Ray(rightDest, Vector3.down), out RaycastHit hitRight, PlayerHeight + 2))
         {
             rightDest = hitRight.point;
         }
@@ -128,7 +127,7 @@ public class StickPlayerMovement : MonoBehaviour
     private async void MoveFoot(Transform ik, Vector3 dest)
     {
         _isFootMoving = true;
-        float duration = _rigidbody.velocity.magnitude < 0.5f ? 0.15f : 0.5f / _rigidbody.velocity.magnitude;
+        float duration = _rigidbody.velocity.magnitude < 0.5f ? 0.15f : 0.4f / _rigidbody.velocity.magnitude;
         await ik.DOJump(dest, 0.2f, 1, duration).AsyncWaitForCompletion();
         _isFootMoving = false;
     }
@@ -148,8 +147,15 @@ public class StickPlayerMovement : MonoBehaviour
 
     private void MoveRotation()
     {
+        Vector3 surfaceVector = leftFootIK.position - rightFootIK.position;
+        if (leftFootIK.position.y < rightFootIK.position.y)
+            surfaceVector *= -1;
+        float normalAngle = 90 - Vector3.Angle(Vector3.up, surfaceVector);
+        Vector3 rot = Quaternion.AngleAxis(normalAngle * 0.5f, transform.forward).eulerAngles;
+
         float horizontal = Input.GetAxis("Horizontal") * Time.deltaTime * rotateSpeed;
-        _targetRotation = Quaternion.AngleAxis(transform.rotation.eulerAngles.y + horizontal, Vector3.up);
+
+        _targetRotation = Quaternion.AngleAxis(transform.rotation.eulerAngles.y + horizontal, transform.up);
     }
 
     private void TiltBody(float length)
