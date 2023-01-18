@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: New Material
+  m_Name: Decal
   m_Shader: {fileID: -6465566751694194690, guid: fef613bbb50523d44b255be9d91b7062, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
@@ -54,6 +54,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_d616890b7843468d82452353d0ffc0e0_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 17fa84703485d314b8d6b5216987d4b1, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
