@@ -156,9 +156,7 @@ public class Cuttable : MonoBehaviour
         }
 
         //Fill the hole
-
-        //StartCoroutine(StartDebug(intersects));
-        //Fill();
+        Fill();
         void Fill()
         {
             Vector3 center = intersects.Aggregate(Vector3.zero, (a, b) => a + b) / intersects.Count;
@@ -186,62 +184,6 @@ public class Cuttable : MonoBehaviour
             int y2f = AddVertexAndNormal(ref vertices2, intersects[0], ref normals2, plane.normal);
             int z2f = AddVertexAndNormal(ref vertices2, center, ref normals2, plane.normal);
             AddTriangle(ref triangles2, x2f, y2f, z2f);
-
-            // while (intersects.Count > 3)
-            // {
-            //     int i = 1;
-            //     for (; i < intersects.Count - 1; i++)
-            //     {
-            //         Vector3 v = intersects[i];
-            //         Vector3 vLeft = intersects[i - 1];
-            //         Vector3 vRight = intersects[i + 1];
-            //
-            //         bool isEar = true;
-            //
-            //         //is v convex
-            //         if (Vector3.SignedAngle(vLeft - v, vRight - v, plane.normal) > 0)
-            //             continue;
-            //
-            //         //no other point inside triangle
-            //          for (var j = 0; j < intersects.Count && j < i - 1 && j > i + 1; j++)
-            //          {
-            //              if (!IsPointInsideTriangle(intersects[j], v, vLeft, vRight))
-            //                  continue;
-            //              isEar = false;
-            //              break;
-            //          }
-            //
-            //          if (!isEar)
-            //              continue;
-            //
-            //          int x1 = AddVertexAndNormal(ref vertices1, vRight, ref normals1, -plane.normal);
-            //          int y1 = AddVertexAndNormal(ref vertices1, v, ref normals1, -plane.normal);
-            //          int z1 = AddVertexAndNormal(ref vertices1, vLeft, ref normals1, -plane.normal);
-            //          AddTriangle(ref triangles1, x1, y1, z1);
-            //
-            //         int x2 = AddVertexAndNormal(ref vertices2, vLeft, ref normals2, plane.normal);
-            //         int y2 = AddVertexAndNormal(ref vertices2, v, ref normals2, plane.normal);
-            //         int z2 = AddVertexAndNormal(ref vertices2, vRight, ref normals2, plane.normal);
-            //         AddTriangle(ref triangles2, x2, y2, z2);
-            //
-            //         intersects.RemoveAt(i);
-            //         break;
-            //     }
-            //
-            //     if (i == intersects.Count - 1)
-            //         intersects.RemoveAt(0);
-            // }
-            //
-            // //final three vertices
-            // int x1f = AddVertexAndNormal(ref vertices1, intersects[2], ref normals1, -plane.normal);
-            // int y1f = AddVertexAndNormal(ref vertices1, intersects[0], ref normals1, -plane.normal);
-            // int z1f = AddVertexAndNormal(ref vertices1, intersects[1], ref normals1, -plane.normal);
-            // AddTriangle(ref triangles1, x1f, y1f, z1f);
-            //
-            // int x2f = AddVertexAndNormal(ref vertices2, intersects[1], ref normals2, plane.normal);
-            // int y2f = AddVertexAndNormal(ref vertices2, intersects[0], ref normals2, plane.normal);
-            // int z2f = AddVertexAndNormal(ref vertices2, intersects[2], ref normals2, plane.normal);
-            // AddTriangle(ref triangles2, z2f, y2f, x2f);
         }
 
         //spawn
@@ -250,20 +192,11 @@ public class Cuttable : MonoBehaviour
 
         if (rb1 != null && rb2 != null)
         {
-            //rb1.AddForce(plane.normal * force, ForceMode.Impulse);
-            //rb2.AddForce(-plane.normal * force, ForceMode.Impulse);
+            rb1.AddForce(plane.normal * force, ForceMode.Impulse);
+            rb2.AddForce(-plane.normal * force, ForceMode.Impulse);
         }
 
         Destroy(gameObject);
-    }
-
-    private IEnumerator StartDebug(List<Vector3> list)
-    {
-        foreach (Vector3 vector3 in list)
-        {
-            Instantiate(debug, transform.TransformPoint(vector3), Quaternion.identity);
-            yield return new WaitForSeconds(1f);
-        }
     }
 
     private Rigidbody SpawnObject(List<Vector3> vertices, List<int> triangles, List<Vector3> normals)
@@ -341,23 +274,6 @@ public class Cuttable : MonoBehaviour
 
             return angle > 0 ? -1 : 1;
         }
-    }
-
-    private static bool IsPointInsideTriangle(Vector3 p, Vector3 a, Vector3 b, Vector3 c)
-    {
-        bool SameDirection(Vector3 x, Vector3 y)
-        {
-            return Vector3.Dot(x, y) >= 0;
-        }
-
-        if (!SameDirection(Vector3.Cross(b - a, p - a), Vector3.Cross(b - a, c - a)))
-            return false;
-        if (!SameDirection(Vector3.Cross(c - b, p - b), Vector3.Cross(c - b, a - b)))
-            return false;
-        if (!SameDirection(Vector3.Cross(a - c, p - c), Vector3.Cross(a - c, b - c)))
-            return false;
-
-        return true;
     }
 
     private bool ListHasVector3(List<Vector3> list, Vector3 v)
