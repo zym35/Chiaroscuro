@@ -9,29 +9,38 @@ public class PlatformerPlayer : MonoBehaviour
     public float jumpSpeed = 1;
     public float size = .5f;
     public float gravity = 9;
+    public float distance = 0.1f;
+
+    private Transform _camTransform;
+
+    private void OnEnable()
+    {
+        _camTransform = Camera.main.transform;
+    }
 
     void Update()
     {
         float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-
-        Vector3 movement =  new Vector3(horizontal * speed * Time.deltaTime, 0, 0);
-        movement += Vector3.down * gravity * Time.deltaTime;
+        Vector3 movement = new Vector3(horizontal * speed, -gravity, 0) * Time.deltaTime;
         if (Input.GetKeyDown(KeyCode.W))
         {
             movement += Vector3.up * jumpSpeed;
         }
 
-        if (TestDestination(transform.position + movement.normalized * size + movement))
+        Vector3 dest = transform.position + movement.normalized * size + movement;
+        if (TestDestination(dest))
         {
-            transform.Translate(movement, Space.World);
+            if (Physics.Raycast(_camTransform.position, dest - _camTransform.position, out RaycastHit hit, 1000))
+            {
+                transform.Translate(hit.point + hit.normal * distance - transform.position);
+                transform.LookAt(transform.position - hit.normal);
+            }
         }
     }
 
     private bool TestDestination(Vector3 pos)
     {
-
-        if (Physics.Raycast(pos, Vector3.back, 100))
+        if (Physics.Raycast(pos, Vector3.back, 1000))
         {
             return false;
         }

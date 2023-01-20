@@ -368,7 +368,7 @@ GameObject:
   - component: {fileID: 1078090565}
   - component: {fileID: 1078090567}
   m_Layer: 0
-  m_Name: Decal
+  m_Name: Projector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -384,7 +384,7 @@ Projector:
   m_Enabled: 1
   serializedVersion: 2
   m_NearClipPlane: 0.1
-  m_FarClipPlane: 100
+  m_FarClipPlane: 2
   m_FieldOfView: 60
   m_AspectRatio: 1
   m_Orthographic: 1
@@ -420,10 +420,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 473d3867efa44e8e9dd4018606c4b4c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 4
-  jumpSpeed: 1
+  speed: 0.01
+  jumpSpeed: 0.01
   size: 0.5
-  gravity: 3
+  gravity: 0
+  distance: 0.1
 --- !u!1 &1120034378
 GameObject:
   m_ObjectHideFlags: 0
