@@ -74,8 +74,8 @@ public class SFPSC_PlayerMovement : MonoBehaviour
         }
 
         // Input
-        vInput = Input.GetAxisRaw("Vertical");
-        hInput = Input.GetAxisRaw("Horizontal");
+        vInput = Input.GetAxisRaw("WASDy");
+        hInput = Input.GetAxisRaw("WASDx");
 
         // Clamping speed
         rb.velocity = ClampMag(rb.velocity, maximumPlayerSpeed);

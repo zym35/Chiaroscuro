@@ -86,8 +86,8 @@ Shader "Hidden/MonochromeToonOutlined"
 
             float Toon(in float4 col)
             {
-                //float lum = 0.299 * col.r + 0.587 * col.g + 0.114 * col.b;
-                return step(_ToonThreshold, col);
+                float lum = 0.299 * col.r + 0.587 * col.g + 0.114 * col.b;
+                return step(_ToonThreshold, lum);
             }
 
             float4 frag (v2f i) : SV_Target
