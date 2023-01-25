@@ -92,7 +92,7 @@ Shader "Hidden/MonochromeToonOutlined"
                 float3 sample = float3(0,0,0);
                 UNITY_UNROLL
                 for (int i = 0; i < 8; i++) {
-                    //sample += GetPixelValue(uv + offsets[i] * _MainTex_TexelSize.xy );
+                    sample += GetPixelValue(uv + offsets[i] * _MainTex_TexelSize.xy );
                     //sample += Toon(tex2D(_MainTex, uv + offsets[i] * _MainTex_TexelSize.xy));
                 }
                 sample /= 8;
@@ -100,8 +100,6 @@ Shader "Hidden/MonochromeToonOutlined"
                 return length(center - sample);
                 //return sample;
             }
-
-            
 
             float4 frag (v2f i) : SV_Target
             {
