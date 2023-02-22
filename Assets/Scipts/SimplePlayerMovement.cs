@@ -17,6 +17,6 @@ public class SimplePlayerMovement : MonoBehaviour
         transform.Translate(movement);
         transform.Rotate(Vector3.up, horizontal * rotateSpeed * Time.deltaTime);
 
-        cameraTracking.position = new Vector3(transform.position.x, transform.position.y, 0);
+        //cameraTracking.position = new Vector3(transform.position.x, transform.position.y, 0);
     }
 }

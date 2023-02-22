@@ -17,7 +17,6 @@ Shader "Hidden/MonochromeToonOutlined"
     }
     SubShader
     {
-        // No culling or depth
         Cull Off ZWrite Off ZTest Always
 
         Pass
@@ -70,8 +69,11 @@ Shader "Hidden/MonochromeToonOutlined"
 
             float Toon(in float4 col)
             {
-                //float lum = 0.299 * col.r + 0.587 * col.g + 0.114 * col.b;
-                float lum = 0.333 * col.r + 0.333 * col.g + 0.333 * col.b;
+                
+                float lum = 0.299 * col.r + 0.587 * col.g + 0.114 * col.b;
+                //float lum = 0.333 * col.r + 0.333 * col.g + 0.333 * col.b;
+
+                return step(_ToonThreshold2, lum);
                 if (lum > _ToonThreshold2)
                     return 1;
                 else if (lum < _ToonThreshold1)
@@ -81,35 +83,45 @@ Shader "Hidden/MonochromeToonOutlined"
 
             float GetMeanValue(in float2 uv)
             {
-                float2 offsets[8] = {
+                #define offsetNum 4
+
+                #if offsetNum == 4
+                float2 offsets[offsetNum] = {
+                    float2(-1, 0), 
+                    float2(0, -1), float2(0, 1),
+                    float2(1, 0)
+                };
+                #endif
+
+                #if offsetNum == 8
+                float2 offsets[offsetNum] = {
                     float2(-1, -1), float2(-1, 0), float2(-1, 1),
                     float2(0, -1),               float2(0, 1),
                     float2(1, -1), float2(1, 0), float2(1, 1)
                 };
+                #endif
 
                 float3 center = GetPixelValue(uv);
 
-                float3 sample = float3(0,0,0);
+                float3 sample = float3(0.0f,0.0f,0.0f);
                 UNITY_UNROLL
-                for (int i = 0; i < 8; i++) {
+                for (int i = 0; i < offsetNum; i++) {
                     sample += GetPixelValue(uv + offsets[i] * _MainTex_TexelSize.xy );
-                    //sample += Toon(tex2D(_MainTex, uv + offsets[i] * _MainTex_TexelSize.xy));
                 }
-                sample /= 8;
+                sample /= offsetNum;
 
                 return length(center - sample);
-                //return sample;
             }
 
             float4 frag (v2f i) : SV_Target
             {
                 float toon = Toon(tex2D(_MainTex, i.uv));
                 
-                //float meanOutline = step(_OutlineThreshold, GetMeanValue(i.uv));
-                //float invertedOutline = abs(sign(toon - meanOutline));
-                //return lerp(_BlackColor, _WhiteColor, invertedOutline);
-                //return float4(GetPixelValue(i.uv), 1);
-                return lerp(_BlackColor, _WhiteColor, toon);
+                float meanOutline = step(_OutlineThreshold, GetMeanValue(i.uv));
+                //float invertedOutline = 1 - step(0.1, toon);
+                float val = lerp(toon, 1-meanOutline, meanOutline);
+                
+                return lerp(_BlackColor, _WhiteColor, val);
             }
             ENDCG
         }

@@ -94,7 +94,7 @@ public class Cuttable : MonoBehaviour
             {
                 Intersect(v2, v3, v1, i2, i3, i1, false);
             }
-            else if (side1 && side2 && !side3)
+            else 
             {
                 Intersect(v3, v1, v2, i3, i1, i2, false);
             }
@@ -218,7 +218,7 @@ public class Cuttable : MonoBehaviour
         obj.transform.localScale = transform.localScale;
         obj.AddComponent<MeshFilter>().mesh = mesh;
         obj.AddComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().sharedMaterial;
-        obj.AddComponent<Cuttable>();
+        //obj.AddComponent<Cuttable>();
 
         MeshCollider collider = obj.AddComponent<MeshCollider>();
         collider.convex = true;

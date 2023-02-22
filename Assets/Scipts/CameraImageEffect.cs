@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 [ExecuteInEditMode]
-public class MTOImageEffect : MonoBehaviour
+public class CameraImageEffect : MonoBehaviour
 {
     public Material material;
 
