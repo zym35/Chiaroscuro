@@ -7,6 +7,7 @@ public class MonocularController : MonoBehaviour
     public Transform camTransform;
     public Transform monocularTransform;
     public float sensitivity;
+    public float startZoom;
 
     private bool _equipped;
     private static readonly Vector3 OriginalMonocularPos = new Vector3(-0.13f,-0.11f,0.24f);
@@ -23,10 +24,10 @@ public class MonocularController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0) && !_equipped)
         {
-            camTransform.localPosition = Vector3.zero;
             _equipped = true;
             monocularTransform.DOLocalMove(Vector3.zero, .5f);
             monocularTransform.DOLocalRotate(Vector3.zero, .5f);
+            camTransform.DOLocalMove(Vector3.forward * startZoom, .5f);
         }
         if (Input.GetMouseButton(0))
         {
