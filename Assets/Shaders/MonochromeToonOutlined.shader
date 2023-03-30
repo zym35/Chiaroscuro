@@ -119,7 +119,7 @@ Shader "Hidden/MonochromeToonOutlined"
                 
                 float meanOutline = step(_OutlineThreshold, GetMeanValue(i.uv));
                 //float invertedOutline = 1 - step(0.1, toon);
-                float val = lerp(toon, 1-meanOutline, meanOutline);
+                float val = lerp(toon, meanOutline, meanOutline);
                 
                 return lerp(_BlackColor, _WhiteColor, val);
             }

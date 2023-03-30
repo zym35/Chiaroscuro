@@ -28,10 +28,11 @@ Material:
     m_Floats:
     - _Area: 100.45
     - _DepthStrength: 1
-    - _DistStrength: 8.07
+    - _DistStrength: 0.73
     - _InvertThreshold: 1
-    - _NormalStrength: 1.91
+    - _NormalStrength: 2.16
     - _OutlineThreshold: 0.15
     - _PosStrength: 1
+    - _PositionStrength: 0.02
     m_Colors: []
   m_BuildTextureStacks: []

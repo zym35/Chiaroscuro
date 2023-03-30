@@ -72,10 +72,16 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _Toon: 1
+    - _ToonThreshold: 0.179
     - _ToonThreshold2: 0.1
+    - _ToonToggle: 1
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
+    - _BlackColor: {r: 0.121568635, g: 0.10980393, b: 0.20000002, a: 1}
     - _Color: {r: 0.7803922, g: 0.7294118, b: 0.67058825, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _TorchPos: {r: 0, g: 0, b: 0, a: 0}
+    - _WhiteColor: {r: 0.7803922, g: 0.7294118, b: 0.67058825, a: 1}
   m_BuildTextureStacks: []

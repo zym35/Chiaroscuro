@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
@@ -76,6 +77,7 @@ public class ShadowCleaverController : MonoBehaviour
                     knifeTransform.SetParent(null);
                     knifeTransform.DOMove(point, .5f);
                     equipped = false;
+                    StartCoroutine(StartKnifeTouch(0.5f));
                 }
             }
             else
@@ -83,6 +85,41 @@ public class ShadowCleaverController : MonoBehaviour
                 knifeTransform.SetParent(transform);
                 knifeTransform.DOLocalMove(_originalKnifePos, .5f);
                 equipped = true;
+                OnKnifeTouchCancel();
+            }
+        }
+    }
+
+    IEnumerator StartKnifeTouch(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        OnKnifeTouch();
+    }
+
+    private void OnKnifeTouch()
+    {
+        if (LevelManager.Instance.PositionInAnyShadow(knifeTransform.position, out List<GameObject> objs))
+        {
+            foreach (GameObject o in objs)
+            {
+                if (o.TryGetComponent(out Rigidbody r))
+                {
+                    r.isKinematic = true;
+                }
+            }
+        }
+    }
+
+    private void OnKnifeTouchCancel()
+    {
+        if (LevelManager.Instance.PositionInAnyShadow(knifeTransform.position, out List<GameObject> objs))
+        {
+            foreach (GameObject o in objs)
+            {
+                if (o.TryGetComponent(out Rigidbody r))
+                {
+                    r.isKinematic = false;
+                }
             }
         }
     }

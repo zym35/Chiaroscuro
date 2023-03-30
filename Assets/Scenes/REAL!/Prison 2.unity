@@ -228,7 +228,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &763881725
 Transform:
   m_ObjectHideFlags: 0
@@ -606,6 +606,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1351358995004574991, guid: 7a6bd5dfe95699a45ae5439495ad2928, type: 3}
+      propertyPath: edgeDetection
+      value: 
+      objectReference: {fileID: 2100000, guid: ed235fb92762a0f49afe1d0a26de4c2b, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7a6bd5dfe95699a45ae5439495ad2928, type: 3}
 --- !u!1 &1943242524

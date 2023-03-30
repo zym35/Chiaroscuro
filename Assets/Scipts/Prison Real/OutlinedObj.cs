@@ -2,10 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SetVertexColor : MonoBehaviour
+[ExecuteInEditMode]
+public class OutlinedObj : MonoBehaviour
 {
     public Color color;
-    void Start()
+    public Material outlineMat;
+    void Update()
     {
         Mesh mesh = GetComponent<MeshFilter>().mesh;
         Vector3[] vertices = mesh.vertices;

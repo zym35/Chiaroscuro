@@ -42,20 +42,24 @@ Shader "Hidden/EdgeDetection"
             float4 _MainTex_TexelSize;
             float _OutlineThreshold;
 
-            // float GetMeanValue(in float2 uv, in half2 offsets[8])
-            // {
-            //     float3 center = GetPixelValue(uv);
-            //
-            //     float3 sample = float3(0,0,0);
-            //
-            //     UNITY_UNROLL
-            //     for (int i = 0; i < 8; i++) {
-            //         sample += GetPixelValue(uv + offsets[i] * _MainTex_TexelSize.xy );
-            //     }
-            //     sample /= 8;
-            //
-            //     return length(center - sample);
-            // }
+            float GetMeanValue(in float2 uv)
+            {
+                half2 offsets[8] = {
+                    half2(-1, -1), half2(-1, 0), half2(-1, 1),
+                    half2(0, -1),               half2(0, 1),
+                    half2(1, -1), half2(1, 0), half2(1, 1)
+                };
+                float3 center = tex2D(_MainTex, uv);
+            
+                float3 sample = float3(0,0,0);
+            
+                for (int i = 0; i < 8; i++) {
+                    sample += tex2D(_MainTex, uv + offsets[i] * _MainTex_TexelSize.xy );
+                }
+                sample /= 8;
+            
+                return length(center - sample);
+            }
 
             float GetSobelValue(in float2 uv)
             {
@@ -73,22 +77,21 @@ Shader "Hidden/EdgeDetection"
 
                 half gy[8] = {
                     -1, -2, -1,
-                    -2,    2,
+                    0,    0,
                     1, 2, 1
                 };
 
                 float3 sampleX = float3(0,0,0);
                 float3 sampleY = float3(0,0,0);
 
-                UNITY_UNROLL
                 for (int i = 0; i < 8; i++) {
                     sampleX += tex2D(_MainTex, uv + offsets[i] * _MainTex_TexelSize.xy) * gx[i];
                     sampleY += tex2D(_MainTex, uv + offsets[i] * _MainTex_TexelSize.xy) * gy[i];
                 }
 
-                float sample = sqrt(pow(sampleX, 2) + pow(sampleY, 2));
+                float3 sample = sqrt(pow(sampleX, 2) + pow(sampleY, 2));
 
-                return sample;
+                return length(sample);
             }
 
             float4 frag (v2f i) : SV_Target

@@ -32,24 +32,12 @@ v2f vert (appdata v)
     return o;
 }
 
-float4 _WhiteColor;
-float4 _BlackColor;
-float _ToonThreshold1;
-float _ToonThreshold2;
-float _MidShade;
-
-// float4( light num, shadow num, 0, 0)
 float4 frag (v2f i) : SV_Target
 {
-    float3 lightDir = normalize(_WorldSpaceLightPos0 - i.worldPos);
+    float3 lightDir = normalize(UnityWorldSpaceLightDir(i.worldPos));
     float diffuse = DotClamped(lightDir, i.worldNormal);
     float atten = SHADOW_ATTENUATION(i);
-    float shadow = atten * diffuse;
+    clip(0.5 - atten);
 
-    return shadow;
-    //return clamp(0, 0.5, shadow);
-    // if (shadow > 0.5)
-    //     return float4(0.1, 0, 0, 0);
-    // else
-    //     return float4(0, 0.1, 0, 0);
+    return (1-atten) * diffuse;
 }
