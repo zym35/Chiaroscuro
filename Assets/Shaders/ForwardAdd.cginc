@@ -39,5 +39,5 @@ float4 frag (v2f i) : SV_Target
     float atten = SHADOW_ATTENUATION(i);
     clip(0.5 - atten);
 
-    return (1-atten) * diffuse;
+    return diffuse;
 }

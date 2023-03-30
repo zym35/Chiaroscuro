@@ -34,9 +34,10 @@ v2f vert (appdata v)
 
 float4 frag (v2f i) : SV_Target
 {
-    float3 lightDir = -normalize(UnityWorldSpaceLightDir(i.worldPos));
+    float3 lightDir = normalize(UnityWorldSpaceLightDir(i.worldPos));
     float diffuse = DotClamped(lightDir, i.worldNormal);
     float atten = SHADOW_ATTENUATION(i);
+    clip(atten - 0.5);
 
-    return (1-atten) * diffuse;
+    return diffuse;
 }
