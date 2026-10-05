@@ -16,7 +16,6 @@ Shader "Chiaroscuro/QuadWireFrame"
 
         Pass
         {
-            // Removes the back facing triangles.
             Cull Back
             CGPROGRAM
             #pragma vertex vert

@@ -8,17 +8,13 @@ public class CameraImageEffect : MonoBehaviour
     public RenderTexture outlineRT, lightingRT;
     public CommandBuffer cb;
 
-    private void Update()
+    //[ImageEffectOpaque]
+    void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        GetComponent<Camera>().depthTextureMode |= DepthTextureMode.Depth;
+        GetComponent<Camera>().depthTextureMode = DepthTextureMode.DepthNormals;
+        Graphics.Blit(src, dest, edgeDetection);
+        //Graphics.Blit(src, null, edgeDetection);
     }
-
-    // [ImageEffectOpaque]
-    // void OnRenderImage(RenderTexture src, RenderTexture dest)
-    // {
-    //     Graphics.Blit(src, dest, edgeDetection);
-    //     //Graphics.Blit(src, null, edgeDetection);
-    // }
     
     
     // public void OnWillRenderObject()

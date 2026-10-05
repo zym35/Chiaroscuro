@@ -28,19 +28,29 @@ Material:
     m_Floats:
     - _DepthBias: 1
     - _DepthMultiplier: 1
-    - _DepthStrength: 0.63
+    - _DepthStrength: 500
+    - _GridSize: 51
+    - _HatchingFrequency: 154
+    - _HatchingIntensity: 1
     - _InvertThreshold: 0
-    - _MidShade: 0.373
+    - _MidShade: 0.355
+    - _NoiseIntensity: 0.1
+    - _NoiseScale: 8.8
     - _NormalBias: 1
+    - _NormalDistThreshold: 0.1
     - _NormalMultiplier: 1
-    - _NormalStrength: 1.71
+    - _NormalStrength: 1
+    - _OutlineDistance: 500
     - _OutlineThickness: 0.86
-    - _OutlineThreshold: 0.329
+    - _OutlineThreshold: 0.061
+    - _PlaneDistThreshold: 0.14
+    - _StripWidth: 0.173
     - _Thickness: 0.1
     - _Threshold: 0.15
     - _ToonThreshold: 0.07
-    - _ToonThreshold1: 0.093
-    - _ToonThreshold2: 0.245
+    - _ToonThreshold1: 0.05
+    - _ToonThreshold2: 0.8
+    - _VignetteIntensity: 0.5
     m_Colors:
     - _BlackColor: {r: 0.11999995, g: 0.10999996, b: 0.19999996, a: 1}
     - _Color: {r: 0.11764703, g: 0.10980389, b: 0.19607839, a: 1}

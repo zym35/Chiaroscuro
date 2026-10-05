@@ -14,6 +14,10 @@ Shader "Hidden/MonochromeToonOutlined"
 
         _NormalStrength ("Normal Strength", Float) = 1
         _DepthStrength ("Depth Strength", Float) = 1
+        _OutlineDistance ("Outline Show Distance", Float) = 1
+        
+        _GridSize ("Grid Size", Range(2, 200)) = 8
+        _StripWidth ("Strip Width", Range(0.01, 1)) = 0.1
     }
     SubShader
     {
@@ -38,10 +42,7 @@ Shader "Hidden/MonochromeToonOutlined"
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
             };
-
-            sampler2D _CameraDepthNormalsTexture;
-            sampler2D _CameraDepthTexture;
-
+            
             v2f vert (appdata v)
             {
                 v2f o;
@@ -50,6 +51,8 @@ Shader "Hidden/MonochromeToonOutlined"
                 return o;
             }
 
+            sampler2D _CameraDepthNormalsTexture;
+            sampler2D _CameraDepthTexture;
             sampler2D _MainTex;
             float4 _MainTex_TexelSize;
             float _OutlineThreshold;
@@ -60,67 +63,99 @@ Shader "Hidden/MonochromeToonOutlined"
             float _MidShade;
             float _NormalStrength;
             float _DepthStrength;
+            float _GridSize;
+            float _OutlineDistance;
 
-            float3 GetPixelValue(in float2 uv) {
-                float depth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv));
-                float2 normal = DecodeViewNormalStereo (tex2D(_CameraDepthNormalsTexture, uv));
-                return fixed3(normal * _NormalStrength, depth * _DepthStrength);
+            float4 GetPixelValue(in float2 uv) {
+                float depth = 0;
+                float3 normal;
+                DecodeDepthNormal(tex2D(_CameraDepthNormalsTexture, uv), depth, normal);
+
+                return float4(normal * _NormalStrength, log(depth));
             }
 
-            float Toon(in float4 col)
-            {
-                
-                float lum = 0.299 * col.r + 0.587 * col.g + 0.114 * col.b;
-                //float lum = 0.333 * col.r + 0.333 * col.g + 0.333 * col.b;
+            float2 hash2(float2 p) {
+                return frac(sin(float2(dot(p, float2(127.1, 311.7)), dot(p, float2(269.5, 183.3)))) * 43758.5453);
+            }
 
-                return step(_ToonThreshold2, lum);
-                if (lum > _ToonThreshold2)
-                    return 1;
-                else if (lum < _ToonThreshold1)
-                    return 0;
-                else return _MidShade;
+            float noise(float2 p) {
+                float2 Pi = floor(p);
+                float2 Pf = p - Pi;
+                float2 w = Pf * Pf * (3.0 - 2.0 * Pf);
+
+                return lerp(lerp(dot(Pf - float2(0, 0), hash2(Pi + float2(0, 0))),
+                                 dot(Pf - float2(0, 1), hash2(Pi + float2(0, 1))), w.y),
+                             lerp(dot(Pf - float2(1, 0), hash2(Pi + float2(1, 0))),
+                                 dot(Pf - float2(1, 1), hash2(Pi + float2(1, 1))), w.y), w.x);
+            }
+            
+            float Toon(in float2 uv)
+            {
+                float4 col = tex2D(_MainTex, uv);
+                float lum = 0.299 * col.r + 0.587 * col.g + 0.114 * col.b;
+
+                float timeOffset = _Time.y * 0.3;
+                float noiseVal = noise(uv * 10 + timeOffset) * 0.03;
+                
+                float originalToon = max(step(_ToonThreshold1, lum) * _MidShade, step(_ToonThreshold2, lum));
+
+                if (originalToon == _MidShade) {
+                    lum += noiseVal;
+                }
+
+                float toon = max(step(_ToonThreshold1, lum) * _MidShade, step(_ToonThreshold2, lum));
+                return toon;
             }
 
             float GetMeanValue(in float2 uv)
             {
-                #define offsetNum 4
-
-                #if offsetNum == 4
-                float2 offsets[offsetNum] = {
-                    float2(-1, 0), 
-                    float2(0, -1), float2(0, 1),
-                    float2(1, 0)
-                };
-                #endif
-
-                #if offsetNum == 8
-                float2 offsets[offsetNum] = {
+                float2 offsets[8] = {
                     float2(-1, -1), float2(-1, 0), float2(-1, 1),
                     float2(0, -1),               float2(0, 1),
                     float2(1, -1), float2(1, 0), float2(1, 1)
                 };
-                #endif
 
-                float3 center = GetPixelValue(uv);
+                float4 center = GetPixelValue(uv);
 
-                float3 sample = float3(0.0f,0.0f,0.0f);
+                float4 sample = float4(0.0f,0.0f,0.0f,0.0f);
                 UNITY_UNROLL
-                for (int i = 0; i < offsetNum; i++) {
+                for (int i = 0; i < 8; i++) {
                     sample += GetPixelValue(uv + offsets[i] * _MainTex_TexelSize.xy );
                 }
-                sample /= offsetNum;
+                sample /= 8;
 
                 return length(center - sample);
             }
 
+            float2 GetClipNormal(in float2 uv)
+            {
+                // Get the world normal
+                float3 worldNormal = GetPixelValue(uv).xyz;
+
+                // Calculate clip space normal
+                float2 clipSpaceNormal = mul(UNITY_MATRIX_V, float4(worldNormal, 0)).xy;
+                return clipSpaceNormal;
+            }
+
+            float checker(in float2 uv )
+            {
+                float aspectRatio = _MainTex_TexelSize.y / _MainTex_TexelSize.x;
+                float2 gridCoords = uv * float2(_GridSize * aspectRatio, _GridSize);
+                float2 intPart;
+                float2 fracPart = modf(gridCoords, intPart);
+                float checker = step(0.5, (intPart.x + intPart.y) % 2);
+                return checker;
+            }
+            
             float4 frag (v2f i) : SV_Target
             {
-                float toon = Toon(tex2D(_MainTex, i.uv));
+                float toon = Toon(i.uv);
                 
-                float meanOutline = step(_OutlineThreshold, GetMeanValue(i.uv));
-                //float invertedOutline = 1 - step(0.1, toon);
-                float val = lerp(toon, meanOutline, meanOutline);
+                float outline = step(_OutlineThreshold, GetMeanValue(i.uv));
+                //if (toon < 0.9 || GetPixelValue(i.uv).w > _OutlineDistance) outline = 0;
                 
+                float val = saturate(toon - outline);
+                //return outline;
                 return lerp(_BlackColor, _WhiteColor, val);
             }
             ENDCG

@@ -1,13 +1,10 @@
-﻿Shader "Chirascuro/DefaultWithShadow"
+﻿Shader "Chirascuro/ColorShadow"
 {
     Properties
     {
-        _MaskTexture ("Mask Texture", 2D) = "black" {}
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
-        
         Pass
         {
             Tags { "LightMode" = "ForwardBase"}
@@ -24,7 +21,7 @@
             //ZWrite Off
 
             CGPROGRAM
-            #include "ForwardAdd.cginc"
+            #include "EnhanceForwardAdd.cginc"
             ENDCG
         }
         
@@ -35,7 +32,7 @@
             //ZWrite Off
 
             CGPROGRAM
-            #include "ForwardAdd.cginc"
+            #include "EnhanceForwardAdd.cginc"
             ENDCG
         }
 
